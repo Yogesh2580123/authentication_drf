@@ -22,13 +22,13 @@ class LoginAPIView(APIView):
         password = request.data.get("password")
         user = authenticate(username=username, password=password)
         if user is not None:
+            refresh = RefreshToken.for_user(user=user)
             if user.is_staff or user.is_superuser:
                 post_data = Post.objects.all()
             else:
                 post_data = Post.objects.filter(create_by=user)
             
             post_serializer = PostSerializer(post_data, many=True)
-            refresh = RefreshToken.for_user(user=user)
             return Response({
                 "refresh" : str(refresh),
                 "access" : str(refresh.access_token),
